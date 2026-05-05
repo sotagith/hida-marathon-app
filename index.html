@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>飛騨高山ウルトラ攻略</title>
+    <title>飛騨高山ウルトラ攻略 GPX対応版</title>
     <style>
         :root {
             --bg-color: #121212;
@@ -22,346 +22,214 @@
             align-items: center;
             min-height: 100vh;
         }
-        .container {
-            width: 90%;
-            max-width: 500px;
-            padding: 20px;
-        }
+        .container { width: 95%; max-width: 500px; padding: 15px; box-sizing: border-box; }
         .card {
             background: var(--card-bg);
             border-radius: 15px;
-            padding: 20px;
-            margin-bottom: 15px;
+            padding: 15px;
+            margin-bottom: 12px;
             box-shadow: 0 4px 6px rgba(0,0,0,0.3);
             text-align: center;
         }
-        .distance-main {
-            font-size: 3.5rem;
-            font-weight: bold;
-            color: var(--accent);
-            margin: 10px 0;
-        }
-        .label {
-            font-size: 0.9rem;
-            color: var(--sub-text);
-            text-transform: uppercase;
-        }
+        .label { font-size: 0.75rem; color: var(--sub-text); text-transform: uppercase; margin-bottom: 4px; }
+        .horizontal-group { display: flex; gap: 8px; width: 100%; margin-bottom: 8px; }
+        .half-card { flex: 1; padding: 12px 8px !important; }
+        .distance-sub { font-size: 2.2rem; font-weight: bold; color: var(--accent); }
+        .distance-sub span { font-size: 0.9rem; margin-left: 2px; }
+        #dist-current { color: #64b5f6; }
         .aid-info {
-            display: flex;
-            justify-content: space-between;
-            font-size: 1.2rem;
-            border-bottom: 1px solid #333;
-            padding-bottom: 10px;
-            margin-bottom: 10px;
+            display: flex; justify-content: space-between; align-items: center;
+            font-size: 1.1rem; border-bottom: 1px solid #333; padding-bottom: 8px; margin-bottom: 8px;
         }
         .message-box {
-            font-style: italic;
-            color: #ffeb3b;
-            min-height: 3rem;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        .status {
-            font-size: 0.8rem;
-            color: #666;
-            margin-top: 20px;
+            font-style: italic; color: #ffeb3b; min-height: 3.5rem;
+            display: flex; align-items: center; justify-content: center; line-height: 1.4;
         }
         button {
-            background: var(--accent);
-            color: black;
-            border: none;
-            padding: 15px 30px;
-            border-radius: 30px;
-            font-weight: bold;
-            font-size: 1rem;
-            margin-top: 10px;
+            background: var(--accent); color: black; border: none; padding: 15px;
+            border-radius: 30px; font-weight: bold; font-size: 1rem; width: 100%; cursor: pointer;
         }
-
-    /* 横並び用のコンテナ */
-    .horizontal-group {
-        display: flex;
-        gap: 10px; /* カード間の隙間 */
-        width: 100%;
-        margin-bottom: 10px;
-    }
-
-    /* 横並び時のカード（幅を半分にする） */
-    .half-card {
-        flex: 1; /* 均等に幅を取る */
-        padding: 15px 10px !important; /* 余白を少し削る */
-    }
-
-    /* 横並び用の少し小さめの数値サイズ */
-    .distance-sub {
-        font-size: 2.5rem; /* 元の3.5remより小さくして収まりを良くする */
-        font-weight: bold;
-        color: var(--accent);
-        margin: 5px 0;
-    }
-
-    .distance-sub span {
-        font-size: 1rem;
-    }
-
-    /* 現在の地点の色を分ける場合 */
-    #dist-current {
-        color: #64b5f6;
-    }
-
-
+        .status { font-size: 0.7rem; color: #666; margin-top: 10px; text-align: center; }
+        .test-panel { margin-top: 15px; border: 1px dashed #444; padding: 10px; border-radius: 10px; width: 100%; box-sizing: border-box; }
+        .test-panel button { width: auto; padding: 5px 8px; margin: 2px; font-size: 0.75rem; }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <h4 style="text-align: center;">Hida Takayama Ultra</h4>
+    <h3 style="text-align: center; margin: 10px 0;">Hida Takayama Ultra 100K</h3>
 
-    <!-- 横並びにするグループ -->
     <div class="horizontal-group">
-        <!-- 現在の地点 -->
         <div class="card half-card">
-            <div class="label">現在の地点</div>
-            <div class="distance-sub" id="dist-current">--.- <span>km</span></div>
+            <div class="label">現在地</div>
+            <div class="distance-sub" id="dist-current">--.-<span>km</span></div>
         </div>
-
-        <!-- Finishまで -->
         <div class="card half-card">
-            <div class="label">Finishまで</div>
-            <div class="distance-sub" id="dist-goal">--.- <span>km</span></div>
+            <div class="label">残り</div>
+            <div class="distance-sub" id="dist-goal">--.-<span>km</span></div>
         </div>
     </div>
 
-    <!-- 次のエイド情報 -->
     <div class="card">
         <div class="aid-info">
-            <span id="next-aid-name">次のエイドを取得中...</span>
+            <span id="next-aid-name" style="font-size: 0.95rem;">Loading...</span>
             <span id="dist-aid" style="font-weight: bold; color: var(--accent);">--.- km</span>
         </div>
-        <div class="label" style="text-align: left;">提供予定:</div>
-        <div id="aid-menu" style="text-align: left; margin-bottom: 10px;">---</div>
+        <div id="aid-menu" style="text-align: left; font-size: 0.85rem; color: var(--sub-text);">---</div>
     </div>
 
-    <!-- 必要ペース・アップダウン -->
     <div class="card">
         <div style="display: flex; justify-content: space-around;">
             <div>
-                <div class="label">目標ペース</div>
-                <div id="req-pace" style="font-size: 1.5rem;">--:--</div>
+                <div class="label">必要ペース</div>
+                <div id="req-pace" style="font-size: 1.3rem; font-weight: bold;">--:--</div>
             </div>
             <div>
-                <div class="label">標高状況</div>
-                <div id="slope-info" style="font-size: 1.2rem;">計測中</div>
+                <div class="label">標高 (GPX)</div>
+                <div id="slope-info" style="font-size: 1.3rem; font-weight: bold;">--- m</div>
             </div>
         </div>
     </div>
 
-    <!-- 応援メッセージ -->
-    <div class="card message-box" id="cheer-msg">
-        GPSを許可して開始してください
+    <div class="card message-box" id="cheer-msg">GPSを起動してください</div>
+
+    <button onclick="startTracking()">計測開始</button>
+    <div class="status" id="status">Status: Waiting for Data...</div>
+
+    <div class="test-panel">
+        <div class="label">Simulator</div>
+        <button onclick="simulateMove(1)">+1km</button>
+        <button onclick="simulateMove(5)">+5km</button>
+        <button onclick="simulateMove(10)">+10km</button>
+        <button onclick="resetTest()">Reset</button>
     </div>
-
-    <button onclick="startTracking()">計測開始 / 更新</button>
-    <div class="status" id="status">Status: Waiting</div>
-</div>
-
-<!-- テスト用：一時的に追加 -->
-<div style="margin-top:20px; border:1px dashed #666; padding:10px;">
-    <p>テスト機能</p>
-    <button onclick="simulateMove(-10)">-10km戻る</button>
-    <button onclick="simulateMove(-1)">-1km戻る</button>
-    <button onclick="simulateMove(1)">+1km進む</button>
-    <button onclick="simulateMove(10)">+10km進む</button>
 </div>
 
 <script>
-
-    // --- 設定：公開したスプレッドシートのCSV URLをここに貼り付けてください ---
-    const SPREADSHEET_AIDS_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRHCFDsNJR_W-MMEOkt0o6Vb0YIdC_1iqpZmuxTIx5SHn2wmKG8HJx2dUcpzrY4zurIfrRisa19uMqS/pub?gid=2072302785&single=true&output=csv";
-    const SPREADSHEET_MSG_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRHCFDsNJR_W-MMEOkt0o6Vb0YIdC_1iqpZmuxTIx5SHn2wmKG8HJx2dUcpzrY4zurIfrRisa19uMqS/pub?gid=108303659&single=true&output=csv";
+    // --- 設定：各種URL ---
+    const CSV_AIDS = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRHCFDsNJR_W-MMEOkt0o6Vb0YIdC_1iqpZmuxTIx5SHn2wmKG8HJx2dUcpzrY4zurIfrRisa19uMqS/pub?gid=2072302785&single=true&output=csv";
+    const CSV_MSG = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRHCFDsNJR_W-MMEOkt0o6Vb0YIdC_1iqpZmuxTIx5SHn2wmKG8HJx2dUcpzrY4zurIfrRisa19uMqS/pub?gid=108303659&single=true&output=csv";
+    const GPX_URL = "course.gpx"; // GitHubのリポジトリに配置したGPXファイル名
 
     let COURSE_DATA = { goal_km: 100, aids: [] };
-    let MESSAGE_DATA = []; // メッセージ用の配列
+    let MESSAGE_DATA = [];
+    let GPX_POINTS = []; // GPX座標リスト
+    let currentKm = 0;
 
-    // ページ読み込み時にCSVを取得して解析する
     window.onload = async () => {
         try {
-            const response = await fetch(SPREADSHEET_AIDS_CSV_URL);
-            const responseMsg = await fetch(SPREADSHEET_MSG_CSV_URL);
-
-            const csvText = await response.text();
-            const csvMsgText = await responseMsg.text();
-
-            parseCSV(csvText);
-            parseMessageCSV(csvMsgText);
-
-            document.getElementById('status').innerText = "Status: コースデータ読み込み完了";
-        } catch (error) {
-            document.getElementById('status').innerText = "Status: データ取得失敗";
-            console.error(error);
+            const [resAids, resMsg] = await Promise.all([ fetch(CSV_AIDS), fetch(CSV_MSG) ]);
+            parseAidsCSV(await resAids.text());
+            parseMessageCSV(await resMsg.text());
+            await loadGPX(GPX_URL);
+            document.getElementById('status').innerText = "Status: 全データ読み込み完了";
+        } catch (e) {
+            document.getElementById('status').innerText = "Status: データ取得エラー";
         }
     };
 
-    // CSVテキストをJSON構造に変換する関数
-    function parseCSV(text) {
-        const lines = text.split('\n');
-        // 1行目はヘッダーなので i=1 から開始
+    // GPXパース
+    async function loadGPX(url) {
+        try {
+            const res = await fetch(url);
+            const text = await res.text();
+            const xml = new DOMParser().parseFromString(text, "text/xml");
+            const trkpts = xml.getElementsByTagName("trkpt");
+            let total = 0;
+            for (let i = 0; i < trkpts.length; i++) {
+                const lat = parseFloat(trkpts[i].getAttribute("lat"));
+                const lon = parseFloat(trkpts[i].getAttribute("lon"));
+                const ele = trkpts[i].getElementsByTagName("ele")[0]?.textContent || 0;
+                if (i > 0) total += calcDist(GPX_POINTS[i-1].lat, GPX_POINTS[i-1].lon, lat, lon);
+                GPX_POINTS.push({ lat, lon, dist: total, ele: parseFloat(ele) });
+            }
+        } catch (e) { console.log("GPX無しで動作します"); }
+    }
+
+    function parseAidsCSV(text) {
+        const lines = text.split(/\r?\n/);
+        COURSE_DATA.aids = [];
         for (let i = 1; i < lines.length; i++) {
             const row = lines[i].split(',');
-            if (row.length < 7) continue; // 不完全な行をスキップ
-
-            const aid = {
-                name: row[1],
-                km: parseFloat(row[2]),      // 100km用の距離
-                km_71: parseFloat(row[3]),   // 71km用の距離
-                menu: row[4].replace(/"/g, ''), // 引用符を削除
+            if (row.length < 7) continue;
+            COURSE_DATA.aids.push({
+                name: row[1].replace(/"/g, ''),
+                km: parseFloat(row[2]),
+                menu: row[4].replace(/"/g, ''),
                 lat: parseFloat(row[5]),
-                lng: parseFloat(row[6])
-            };
-            COURSE_DATA.aids.push(aid);
+                lon: parseFloat(row[6])
+            });
         }
-        // 最後にゴール距離を確定（リストの最後のkm）
         COURSE_DATA.goal_km = COURSE_DATA.aids[COURSE_DATA.aids.length - 1].km;
     }
 
     function parseMessageCSV(text) {
-
-        const lines = text.split('\n');
-        // 1行目はヘッダーなので i=1 から開始
+        const lines = text.split(/\r?\n/);
+        MESSAGE_DATA = [];
         for (let i = 1; i < lines.length; i++) {
             const row = lines[i].split(',');
-            if (row.length < 3) continue; // 不完全な行をスキップ
-
-            MESSAGE_DATA.push({
-                km: parseFloat(row[0]),
-                text: row[1].replace(/"/g, '')
-            });
-
-            console.log(row[1].replace(/"/g, ''));
+            if (row.length < 2) continue;
+            MESSAGE_DATA.push({ km: parseFloat(row[0]), text: row[1].replace(/"/g, '') });
         }
-
-        // km地点が小さい順にソートしておく
         MESSAGE_DATA.sort((a, b) => a.km - b.km);
     }
 
     function startTracking() {
-        if (!COURSE_DATA) {
-            alert("コースデータがまだ読み込まれていません");
-            return;
-        }
-        
-        if (!navigator.geolocation) {
-            alert("お使いのブラウザはGPSに対応していません");
-            return;
-        }
+        if (!navigator.geolocation) return alert("GPS非対応");
+        document.getElementById('status').innerText = "Status: Tracking...";
+        navigator.geolocation.watchPosition(
+            (pos) => {
+                currentKm = findNearestKm(pos.coords.latitude, pos.coords.longitude);
+                updateUI(currentKm, pos.coords.altitude);
+            },
+            (err) => document.getElementById('status').innerText = "Status: GPS Error",
+            { enableHighAccuracy: true }
+        );
+    }
 
-        document.getElementById('status').innerText = "Status: 追跡中...";
-        navigator.geolocation.watchPosition(updatePosition, handleError, {
-            enableHighAccuracy: true,
-            timeout: 10000
+    function findNearestKm(lat, lon) {
+        // GPXがある場合は詳細軌跡から、ない場合はエイドから推計
+        const points = GPX_POINTS.length > 0 ? GPX_POINTS : COURSE_DATA.aids;
+        let minD = Infinity;
+        let nearest = 0;
+        points.forEach(p => {
+            const d = calcDist(lat, lon, p.lat, p.lon || p.lng);
+            if (d < minD) { minD = d; nearest = p.dist || p.km; }
         });
+        return nearest;
     }
 
-let testKm = 0;
-function simulateMove(step) {
-    testKm += step;
-    // updatePositionと同じ処理を、固定のtestKmで実行するように関数を呼ぶ
-    updateDisplayForTest(testKm);
-}
-
-function updateDisplayForTest(currentKm) {
-
-    // 2. 画面表示の更新
-    // 現在の距離
-    document.getElementById('dist-current').innerHTML = `${currentKm.toFixed(1)} <span style="font-size: 1.5rem;">km</span>`;
-    
-    // ゴールまでの残り
-    let remainGoal = COURSE_DATA.goal_km - currentKm;
-    document.getElementById('dist-goal').innerHTML = `${remainGoal.toFixed(1)} <span style="font-size: 1.5rem;">km</span>`;
-
-    // 3. 次のエイドを探す
-    let nextAid = COURSE_DATA.aids.find(aid => aid.km > currentKm);
-    if (nextAid) {
-        document.getElementById('next-aid-name').innerText = nextAid.name;
-        document.getElementById('dist-aid').innerText = `${(nextAid.km - currentKm).toFixed(1)} km`;
-        document.getElementById('aid-menu').innerText = nextAid.menu;
+    function calcDist(la1, lo1, la2, lo2) {
+        const R = 6371;
+        const dLa = (la2 - la1) * Math.PI / 180;
+        const dLo = (lo2 - lo1) * Math.PI / 180;
+        const a = Math.sin(dLa/2)**2 + Math.cos(la1*Math.PI/180)*Math.cos(la2*Math.PI/180)*Math.sin(dLo/2)**2;
+        return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
     }
 
-    updateMessage(currentKm);
-}
+    function updateUI(km, gpsEle) {
+        const remain = Math.max(0, COURSE_DATA.goal_km - km);
+        document.getElementById('dist-current').innerHTML = `${km.toFixed(1)}<span>km</span>`;
+        document.getElementById('dist-goal').innerHTML = `${remain.toFixed(1)}<span>km</span>`;
 
-
-    function updatePosition(position) {
-        const lat = position.coords.latitude;
-        const lng = position.coords.longitude;
-
-        // 1. 現在の走行距離を計算
-        // 本来は全コースの座標データが必要ですが、簡易版として「最も近いエイド」から推計
-        let currentKm = calculateCurrentKm(lat, lng); 
-        //let currentKm = estimateCurrentKm(lat, lng);
-
-        // 2. 画面表示の更新
-        // 現在の距離
-        document.getElementById('dist-current').innerHTML = `${currentKm.toFixed(1)} <span style="font-size: 1.5rem;">km</span>`;
-        
-        // ゴールまでの残り
-        let remainGoal = COURSE_DATA.goal_km - currentKm;
-        document.getElementById('dist-goal').innerHTML = `${remainGoal.toFixed(1)} <span style="font-size: 1.5rem;">km</span>`;
-
-        // 3. 次のエイドを探す
-        let nextAid = COURSE_DATA.aids.find(aid => aid.km > currentKm);
-        if (nextAid) {
-            document.getElementById('next-aid-name').innerText = nextAid.name;
-            document.getElementById('dist-aid').innerText = `${(nextAid.km - currentKm).toFixed(1)} km`;
-            document.getElementById('aid-menu').innerText = nextAid.menu;
+        const next = COURSE_DATA.aids.find(a => a.km > km + 0.1);
+        if (next) {
+            document.getElementById('next-aid-name').innerText = next.name;
+            document.getElementById('dist-aid').innerText = `${(next.km - km).toFixed(1)} km`;
+            document.getElementById('aid-menu').innerText = "提供: " + next.menu;
         }
 
-        updateMessage(currentKm);
+        // 標高：GPXから取得（なければGPSの生データ）
+        const p = GPX_POINTS.find(pt => pt.dist >= km);
+        document.getElementById('slope-info').innerText = p ? `${p.ele.toFixed(0)} m` : (gpsEle ? `${gpsEle.toFixed(0)} m` : "--- m");
+
+        // 応援メッセージ
+        const msg = [...MESSAGE_DATA].reverse().find(m => km >= m.km);
+        document.getElementById('cheer-msg').innerText = msg ? msg.text : "10回目の完走へ！一歩ずつ！";
     }
 
-    // 緯度経度からコース上の距離(km)を推計する関数
-    function calculateCurrentKm(lat, lng) {
-        if (!COURSE_DATA || COURSE_DATA.aids.length === 0) return 0;
-
-        // 最も近いエイドを探す（簡易ロジック）
-        let minDest = Infinity;
-        let closestAidKm = 0;
-
-        COURSE_DATA.aids.forEach(aid => {
-            const d = Math.sqrt(Math.pow(lat - aid.lat, 2) + Math.pow(lng - aid.lng, 2));
-            if (d < minDest) {
-                minDest = d;
-                closestAidKm = aid.km;
-            }
-        });
-
-        return closestAidKm;
-    }
-
-    function estimateCurrentKm(lat, lng) {
-        // 本番ではここで「コース全座標データ」と「現在地」を照合
-        // 今回はサンプルとして、適当な数値を返します
-        return 68.5; 
-    }
-
-    // 応援メッセージを更新する関数
-    function updateMessage(currentKm) {
-        // 現在のkm地点以下の、最も大きいkmに設定されたメッセージを探す
-        const relevantMsg = [...MESSAGE_DATA].reverse().find(m => currentKm >= m.km);
-        
-        if (relevantMsg) {
-            document.getElementById('cheer-msg').innerText = relevantMsg.text;
-        } else {
-            document.getElementById('cheer-msg').innerText = "一歩一歩、ゴールを目指しましょう！";
-        }
-    }
-
-
-    function handleError(error) {
-        document.getElementById('status').innerText = "Status: GPSエラー";
-        console.error(error);
-    }
+    function simulateMove(s) { currentKm += s; updateUI(currentKm); }
+    function resetTest() { currentKm = 0; updateUI(0); }
 </script>
-
 </body>
 </html>
