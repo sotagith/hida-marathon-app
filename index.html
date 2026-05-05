@@ -233,8 +233,8 @@
             const row = line.split(',');
             
             MESSAGE_DATA.push({
-                km: parseFloat(row[1]),
-                text: row[2].replace(/"/g, '')
+                km: parseFloat(row[0]),
+                text: row[1].replace(/"/g, '')
             });
         });
         // km地点が小さい順にソートしておく
