@@ -125,19 +125,45 @@
 
 <script>
 
-    let COURSE_DATA = null; // 最初は空にしておく
+    // --- 設定：公開したスプレッドシートのCSV URLをここに貼り付けてください ---
+    const SPREADSHEET_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRHCFDsNJR_W-MMEOkt0o6Vb0YIdC_1iqpZmuxTIx5SHn2wmKG8HJx2dUcpzrY4zurIfrRisa19uMqS/pub?output=csv";
 
-    // ページ読み込み時にJSONを取得
+    let COURSE_DATA = { goal_km: 100, aids: [] };
+
+    // ページ読み込み時にCSVを取得して解析する
     window.onload = async () => {
         try {
-            const response = await fetch('aids.json');
-            COURSE_DATA = await response.json();
-            document.getElementById('status').innerText = "Status: データの読み込み完了";
+            const response = await fetch(SPREADSHEET_CSV_URL);
+            const csvText = await response.text();
+            parseCSV(csvText);
+            document.getElementById('status').innerText = "Status: コースデータ読み込み完了";
         } catch (error) {
-            document.getElementById('status').innerText = "Status: データ読み込みエラー";
-            console.error("JSON読み込み失敗:", error);
+            document.getElementById('status').innerText = "Status: データ取得失敗";
+            console.error(error);
         }
     };
+
+    // CSVテキストをJSON構造に変換する関数
+    function parseCSV(text) {
+        const lines = text.split('\n');
+        // 1行目はヘッダーなので i=1 から開始
+        for (let i = 1; i < lines.length; i++) {
+            const row = lines[i].split(',');
+            if (row.length < 7) continue; // 不完全な行をスキップ
+
+            const aid = {
+                name: row[1],
+                km: parseFloat(row[2]),      // 100km用の距離
+                km_71: parseFloat(row[3]),   // 71km用の距離
+                menu: row[4].replace(/"/g, ''), // 引用符を削除
+                lat: parseFloat(row[5]),
+                lng: parseFloat(row[6])
+            };
+            COURSE_DATA.aids.push(aid);
+        }
+        // 最後にゴール距離を確定（リストの最後のkm）
+        COURSE_DATA.goal_km = COURSE_DATA.aids[COURSE_DATA.aids.length - 1].km;
+    }
 
     function startTracking() {
         if (!COURSE_DATA) {
