@@ -77,6 +77,39 @@
             font-size: 1rem;
             margin-top: 10px;
         }
+
+    /* 横並び用のコンテナ */
+    .horizontal-group {
+        display: flex;
+        gap: 10px; /* カード間の隙間 */
+        width: 100%;
+        margin-bottom: 10px;
+    }
+
+    /* 横並び時のカード（幅を半分にする） */
+    .half-card {
+        flex: 1; /* 均等に幅を取る */
+        padding: 15px 10px !important; /* 余白を少し削る */
+    }
+
+    /* 横並び用の少し小さめの数値サイズ */
+    .distance-sub {
+        font-size: 2.2rem; /* 元の3.5remより小さくして収まりを良くする */
+        font-weight: bold;
+        color: var(--accent);
+        margin: 5px 0;
+    }
+
+    .distance-sub span {
+        font-size: 1rem;
+    }
+
+    /* 現在の地点の色を分ける場合 */
+    #dist-current {
+        color: #64b5f6;
+    }
+
+
     </style>
 </head>
 <body>
@@ -84,17 +117,21 @@
 <div class="container">
     <h2 style="text-align: center;">Hida Takayama Ultra</h2>
 
-    <!-- 現在の距離表示を追加 -->
-    <div class="card">
-        <div class="label">現在の地点</div>
-        <div class="distance-main" id="dist-current" style="color: #64b5f6;">--.- <span style="font-size: 1.5rem;">km</span></div>
+    <!-- 横並びにするグループ -->
+    <div class="horizontal-group">
+        <!-- 現在の地点 -->
+        <div class="card half-card">
+            <div class="label">現在の地点</div>
+            <div class="distance-sub" id="dist-current">--.- <span>km</span></div>
+        </div>
+
+        <!-- Finishまで -->
+        <div class="card half-card">
+            <div class="label">Finishまで</div>
+            <div class="distance-sub" id="dist-goal">--.- <span>km</span></div>
+        </div>
     </div>
 
-    <!-- 既存の「Finishまで」のカード -->
-    <div class="card">
-        <div class="label">Finishまで</div>
-        <div class="distance-main" id="dist-goal">--.- <span style="font-size: 1.5rem;">km</span></div>
-    </div>
     <!-- 次のエイド情報 -->
     <div class="card">
         <div class="aid-info">
