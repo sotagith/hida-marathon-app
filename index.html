@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>飛騨高山ウルトラ攻略</title>
+    <style>
+        :root {
+            --bg-color: #121212;
+            --card-bg: #1e1e1e;
+            --accent: #00e676;
+            --text: #ffffff;
+            --sub-text: #b0b0b0;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text);
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+        }
+        .container {
+            width: 90%;
+            max-width: 500px;
+            padding: 20px;
+        }
+        .card {
+            background: var(--card-bg);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 15px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+            text-align: center;
+        }
+        .distance-main {
+            font-size: 3.5rem;
+            font-weight: bold;
+            color: var(--accent);
+            margin: 10px 0;
+        }
+        .label {
+            font-size: 0.9rem;
+            color: var(--sub-text);
+            text-transform: uppercase;
+        }
+        .aid-info {
+            display: flex;
+            justify-content: space-between;
+            font-size: 1.2rem;
+            border-bottom: 1px solid #333;
+            padding-bottom: 10px;
+            margin-bottom: 10px;
+        }
+        .message-box {
+            font-style: italic;
+            color: #ffeb3b;
+            min-height: 3rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .status {
+            font-size: 0.8rem;
+            color: #666;
+            margin-top: 20px;
+        }
+        button {
+            background: var(--accent);
+            color: black;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 30px;
+            font-weight: bold;
+            font-size: 1rem;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2 style="text-align: center;">Hida Takayama Ultra</h2>
+
+    <!-- ゴールまでの距離 -->
+    <div class="card">
+        <div class="label">Finishまで</div>
+        <div class="distance-main" id="dist-goal">--.- <span style="font-size: 1.5rem;">km</span></div>
+    </div>
+
+    <!-- 次のエイド情報 -->
+    <div class="card">
+        <div class="aid-info">
+            <span id="next-aid-name">次のエイドを取得中...</span>
+            <span id="dist-aid" style="font-weight: bold; color: var(--accent);">--.- km</span>
+        </div>
+        <div class="label" style="text-align: left;">提供予定:</div>
+        <div id="aid-menu" style="text-align: left; margin-bottom: 10px;">---</div>
+    </div>
+
+    <!-- 必要ペース・アップダウン -->
+    <div class="card">
+        <div style="display: flex; justify-content: space-around;">
+            <div>
+                <div class="label">目標ペース</div>
+                <div id="req-pace" style="font-size: 1.5rem;">--:--</div>
+            </div>
+            <div>
+                <div class="label">標高状況</div>
+                <div id="slope-info" style="font-size: 1.2rem;">計測中</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 応援メッセージ -->
+    <div class="card message-box" id="cheer-msg">
+        GPSを許可して開始してください
+    </div>
+
+    <button onclick="startTracking()">計測開始 / 更新</button>
+    <div class="status" id="status">Status: Waiting</div>
+</div>
+
+<script>
+    // コースデータ（主要なエイドのみ抜粋。実際は全リストを入れる）
+    const COURSE_DATA = {
+        goal_km: 100,
+        aids: [
+            { name: "第1エイド", km: 5.2, menu: "ドリンク", lat: 36.145, lng: 137.250 },
+            { name: "第2エイド", km: 10.5, menu: "バナナ・パン", lat: 36.155, lng: 137.260 },
+            { name: "第12エイド", km: 72.3, menu: "★飛騨牛・うどん", lat: 36.160, lng: 137.330 },
+            // ... ここに全エイドを追加
+        ]
+    };
+
+    function startTracking() {
+        if (!navigator.geolocation) {
+            alert("お使いのブラウザはGPSに対応していません");
+            return;
+        }
+
+        document.getElementById('status').innerText = "Status: 追跡中...";
+        navigator.geolocation.watchPosition(updatePosition, handleError, {
+            enableHighAccuracy: true,
+            timeout: 10000
+        });
+    }
+
+    function updatePosition(position) {
+        const lat = position.coords.latitude;
+        const lng = position.coords.longitude;
+
+        // 【本来はここで現在地がコースの何km地点かを計算】
+        // 今回はデモ用として「現在地＝大会開始からの経過」をシミュレートするロジックの枠組み
+        // 実際には現在座標からコース上の最近似点を割り出します
+        
+        // 仮の現在走行距離 (テスト用: 実際は座標から算出)
+        let currentKm = estimateCurrentKm(lat, lng); 
+
+        // 1. ゴールまでの距離
+        let remainGoal = COURSE_DATA.goal_km - currentKm;
+        document.getElementById('dist-goal').innerHTML = `${remainGoal.toFixed(1)} <span style="font-size: 1.5rem;">km</span>`;
+
+        // 2. 次のエイドを探す
+        let nextAid = COURSE_DATA.aids.find(aid => aid.km > currentKm);
+        if (nextAid) {
+            document.getElementById('next-aid-name').innerText = nextAid.name;
+            document.getElementById('dist-aid').innerText = `${(nextAid.km - currentKm).toFixed(1)} km`;
+            document.getElementById('aid-menu').innerText = nextAid.menu;
+        }
+
+        // 3. メッセージ更新
+        updateMessage(currentKm);
+    }
+
+    function estimateCurrentKm(lat, lng) {
+        // 本番ではここで「コース全座標データ」と「現在地」を照合
+        // 今回はサンプルとして、適当な数値を返します
+        return 68.5; 
+    }
+
+    function updateMessage(km) {
+        let msg = "";
+        if (km < 20) msg = "序盤です。美女峠に備えて温存しましょう！";
+        else if (km >= 70 && km < 75) msg = "千光寺の激坂！ここを越えれば飛騨牛が待っています！";
+        else if (km >= 90) msg = "あと10km！高山の街へ帰りましょう！";
+        else msg = "一歩一歩。完走はあなたのものです。";
+        document.getElementById('cheer-msg').innerText = msg;
+    }
+
+    function handleError(error) {
+        document.getElementById('status').innerText = "Status: GPSエラー";
+        console.error(error);
+    }
+</script>
+
+</body>
+</html>
