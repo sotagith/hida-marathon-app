@@ -124,18 +124,27 @@
 </div>
 
 <script>
-    // コースデータ（主要なエイドのみ抜粋。実際は全リストを入れる）
-    const COURSE_DATA = {
-        goal_km: 100,
-        aids: [
-            { name: "第1エイド", km: 5.2, menu: "ドリンク", lat: 36.145, lng: 137.250 },
-            { name: "第2エイド", km: 10.5, menu: "バナナ・パン", lat: 36.155, lng: 137.260 },
-            { name: "第12エイド", km: 72.3, menu: "★飛騨牛・うどん", lat: 36.160, lng: 137.330 },
-            // ... ここに全エイドを追加
-        ]
+
+    let COURSE_DATA = null; // 最初は空にしておく
+
+    // ページ読み込み時にJSONを取得
+    window.onload = async () => {
+        try {
+            const response = await fetch('aids.json');
+            COURSE_DATA = await response.json();
+            document.getElementById('status').innerText = "Status: データの読み込み完了";
+        } catch (error) {
+            document.getElementById('status').innerText = "Status: データ読み込みエラー";
+            console.error("JSON読み込み失敗:", error);
+        }
     };
 
     function startTracking() {
+        if (!COURSE_DATA) {
+            alert("コースデータがまだ読み込まれていません");
+            return;
+        }
+        
         if (!navigator.geolocation) {
             alert("お使いのブラウザはGPSに対応していません");
             return;
