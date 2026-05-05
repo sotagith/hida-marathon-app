@@ -76,6 +76,12 @@
             <span id="dist-aid" style="font-weight: bold; color: var(--accent);">--.- km</span>
         </div>
         <div id="aid-menu" style="text-align: left; font-size: 0.85rem; color: var(--sub-text);">---</div>
+
+        <!-- 地図確認ボタンを追加 -->
+        <button onclick="openMap()" style="padding: 8px; font-size: 0.8rem; background: #444; color: white; width: auto;">
+            🚩 エイド地点をMapで確認
+        </button>
+
     </div>
 
     <div class="card">
@@ -115,6 +121,9 @@
     let MESSAGE_DATA = [];
     let GPX_POINTS = []; // GPX座標リスト
     let currentKm = 0;
+// グローバル変数として次のエイドの座標を保持
+let currentTargetLat = 0;
+let currentTargetLon = 0;
 
     window.onload = async () => {
         try {
@@ -217,6 +226,10 @@
             document.getElementById('next-aid-name').innerText = next.name;
             document.getElementById('dist-aid').innerText = `${(next.km - km).toFixed(1)} km`;
             document.getElementById('aid-menu').innerText = "提供: " + next.menu;
+
+            // 地図表示用に座標を保存
+            currentTargetLat = next.lat;
+            currentTargetLon = next.lon;
         }
 
         // 標高：GPXから取得（なければGPSの生データ）
@@ -230,6 +243,18 @@
 
     function simulateMove(s) { currentKm += s; updateUI(currentKm); }
     function resetTest() { currentKm = 0; updateUI(0); }
+
+    // Googleマップを開く関数
+    function openMap() {
+        if (currentTargetLat === 0) {
+            alert("エイドデータが読み込まれていません");
+            return;
+        }
+        // Google MapsのURLスキームを作成 (緯度,経度)
+        const url = `https://www.google.com/maps/search/?api=1&query=${currentTargetLat},${currentTargetLon}`;
+        window.open(url, '_blank');
+    }
+
 </script>
 </body>
 </html>
