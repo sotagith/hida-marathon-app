@@ -224,19 +224,20 @@
         COURSE_DATA.goal_km = COURSE_DATA.aids[COURSE_DATA.aids.length - 1].km;
     }
 
-    // CSVパース関数の中でメッセージも読み込むように拡張
     function parseMessageCSV(text) {
+
         const lines = text.split('\n');
-        // エイドとメッセージを分けて処理（例：行の内容で判別）
-        lines.forEach((line, index) => {
-            if (index === 0) return; // ヘッダー
-            const row = line.split(',');
-            
+        // 1行目はヘッダーなので i=1 から開始
+        for (let i = 1; i < lines.length; i++) {
+            const row = lines[i].split(',');
+            if (row.length < 2) continue; // 不完全な行をスキップ
+
             MESSAGE_DATA.push({
                 km: parseFloat(row[0]),
                 text: row[1].replace(/"/g, '')
             });
-        });
+        }
+
         // km地点が小さい順にソートしておく
         MESSAGE_DATA.sort((a, b) => a.km - b.km);
     }
