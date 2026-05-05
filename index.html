@@ -247,7 +247,12 @@
             document.getElementById('dist-aid').innerText = "0.0 km";
         }
 
+        // GPXポイントから現在のkmに近い地点の標高を探す
         const p = GPX_POINTS.find(pt => pt.dist >= safeKm);
+
+        // 1. GPXがあればそれを使う
+        // 2. なければGPS生の標高を使う
+        // 3. それもなければ "--- m"
         document.getElementById('slope-info').innerText = p ? `${p.ele.toFixed(0)} m` : (gpsEle ? `${gpsEle.toFixed(0)} m` : "--- m");
 
         const msg = [...MESSAGE_DATA].reverse().find(m => safeKm >= m.km);
