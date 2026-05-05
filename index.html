@@ -168,10 +168,10 @@
 <!-- テスト用：一時的に追加 -->
 <div style="margin-top:20px; border:1px dashed #666; padding:10px;">
     <p>テスト機能</p>
-    <button onclick="simulateMove(10)">+10km進む</button>
-    <button onclick="simulateMove(1)">+1km進む</button>
-    <button onclick="simulateMove(-1)">-1km戻る</button>
     <button onclick="simulateMove(-10)">-10km戻る</button>
+    <button onclick="simulateMove(-1)">-1km戻る</button>
+    <button onclick="simulateMove(1)">+1km進む</button>
+    <button onclick="simulateMove(10)">+10km進む</button>
 </div>
 
 <script>
@@ -230,12 +230,14 @@
         // 1行目はヘッダーなので i=1 から開始
         for (let i = 1; i < lines.length; i++) {
             const row = lines[i].split(',');
-            if (row.length < 2) continue; // 不完全な行をスキップ
+            if (row.length < 3) continue; // 不完全な行をスキップ
 
             MESSAGE_DATA.push({
                 km: parseFloat(row[0]),
                 text: row[1].replace(/"/g, '')
             });
+
+            console.log(row[1].replace(/"/g, ''));
         }
 
         // km地点が小さい順にソートしておく
