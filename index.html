@@ -6,11 +6,7 @@
     <title>飛騨高山ウルトラ攻略 2026</title>
     <style>
         :root {
-            --bg-color: #121212;
-            --card-bg: #1e1e1e;
-            --accent: #00e676;
-            --text: #ffffff;
-            --sub-text: #b0b0b0;
+            --bg-color: #121212; --card-bg: #1e1e1e; --accent: #00e676; --text: #ffffff; --sub-text: #b0b0b0;
         }
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
@@ -22,6 +18,15 @@
             background: var(--card-bg); border-radius: 15px; padding: 15px; margin-bottom: 12px;
             box-shadow: 0 4px 6px rgba(0,0,0,0.3); text-align: center;
         }
+        .mode-switch {
+            display: flex; background: #333; border-radius: 25px; margin-bottom: 15px; padding: 4px;
+        }
+        .mode-btn {
+            flex: 1; padding: 10px; border-radius: 20px; border: none; background: none; 
+            color: #888; cursor: pointer; font-weight: bold; transition: 0.3s;
+        }
+        .mode-btn.active { background: var(--accent); color: #000; }
+
         .label { font-size: 0.75rem; color: var(--sub-text); text-transform: uppercase; margin-bottom: 4px; }
         .horizontal-group { display: flex; gap: 8px; width: 100%; margin-bottom: 8px; }
         .half-card { flex: 1; padding: 12px 8px !important; }
@@ -30,20 +35,25 @@
         #dist-current { color: #64b5f6; }
         .aid-info {
             display: flex; justify-content: space-between; align-items: center;
-            font-size: 2.5rem; border-bottom: 1px solid #333; padding-bottom: 8px; margin-bottom: 8px;
+            font-size: 1.5rem; border-bottom: 1px solid #333; padding-bottom: 8px; margin-bottom: 8px;
         }
         .message-box {
             font-style: italic; color: #ffeb3b; min-height: 3.5rem;
             display: flex; align-items: center; justify-content: center; line-height: 1.4;
         }
-        button {
+        button.main-btn {
             background: var(--accent); color: black; border: none; padding: 15px;
             border-radius: 30px; font-weight: bold; font-size: 1rem; width: 100%; cursor: pointer;
         }
-        .btn-map { background: #444; color: white; padding: 10px; font-size: 0.8rem; margin-top: 10px; width: auto; border-radius: 20px; }
+        .btn-map { background: #444; color: white; padding: 8px 15px; font-size: 0.8rem; margin-top: 10px; border-radius: 20px; border: none; }
         .status { font-size: 0.7rem; color: #666; margin-top: 10px; text-align: center; }
-        .test-panel { margin-top: 15px; border: 1px dashed #444; padding: 10px; border-radius: 10px; width: 100%; box-sizing: border-box; }
-        .test-panel button { width: auto; padding: 5px 8px; margin: 2px; font-size: 0.75rem; background: #333; color: #ccc; }
+
+        /* シミュレーター用のスタイル */
+        .test-panel { margin-top: 20px; border: 1px dashed #444; padding: 15px; border-radius: 10px; width: 100%; box-sizing: border-box; }
+        .test-btn-group { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; }
+        .test-btn-group button { 
+            flex: 1; min-width: 70px; padding: 8px; font-size: 0.8rem; background: #333; color: #ccc; border: 1px solid #555; border-radius: 5px;
+        }
     </style>
 </head>
 <body>
@@ -51,23 +61,28 @@
 <div class="container">
     <h3 style="text-align: center; margin: 10px 0;">Hida Takayama Ultra App</h3>
 
+    <div class="mode-switch">
+        <button id="btn-100" class="mode-btn active" onclick="switchMode('100')">100km</button>
+        <button id="btn-71" class="mode-btn" onclick="switchMode('71')">71km</button>
+    </div>
+
     <div class="horizontal-group">
         <div class="card half-card">
             <div class="label">現在の地点</div>
-            <div class="distance-sub" id="dist-current">0.0<span>km</span></div>
+            <div id="dist-current" class="distance-sub">0.0<span>km</span></div>
         </div>
         <div class="card half-card">
             <div class="label">Finishまで</div>
-            <div class="distance-sub" id="dist-goal">--.-<span>km</span></div>
+            <div id="dist-goal" class="distance-sub">--.-<span>km</span></div>
         </div>
     </div>
 
     <div class="card">
         <div class="aid-info">
-            <span id="next-aid-name" style="font-size: 0.95rem;">データ読込中...</span>
+            <span id="next-aid-name">データ読込中...</span>
             <span id="dist-aid" style="font-weight: bold; color: var(--accent);">--.- km</span>
         </div>
-        <div id="aid-menu" style="text-align: left; font-size: 1.25rem; color: var(--sub-text); margin-bottom: 10px;">---</div>
+        <div id="aid-menu" style="text-align: left; font-size: 1.5rem; color: var(--sub-text); margin-bottom: 10px;">---</div>
         <button class="btn-map" onclick="openMap()">🚩 エイドをMapで確認</button>
     </div>
 
@@ -86,58 +101,52 @@
 
     <div class="card message-box" id="cheer-msg">GPSを開始してください</div>
 
-    <button onclick="startTracking()">計測開始 / 更新</button>
+    <button class="main-btn" onclick="startTracking()">計測開始 / 更新</button>
     <div class="status" id="status">Status: Waiting...</div>
 
+    <!-- 再追加：テスト用シミュレーターパネル -->
     <div class="test-panel">
-        <div class="label">Simulator</div>
-        <button onclick="simulateMove(1)">+1km</button>
-        <button onclick="simulateMove(5)">+5km</button>
-        <button onclick="resetTest()">Reset</button>
+        <div class="label" style="margin-bottom: 10px;">Simulator (Debug Only)</div>
+        <div class="test-btn-group">
+            <button onclick="simulateMove(1)">+1km</button>
+            <button onclick="simulateMove(5)">+5km</button>
+            <button onclick="simulateMove(10)">+10km</button>
+            <button onclick="resetTest()" style="background: #5c2b2b;">Reset</button>
+        </div>
     </div>
 </div>
 
 <script>
-    // スプレッドシートURL (金華山テスト用に設定してください)
     const CSV_AIDS = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRHCFDsNJR_W-MMEOkt0o6Vb0YIdC_1iqpZmuxTIx5SHn2wmKG8HJx2dUcpzrY4zurIfrRisa19uMqS/pub?gid=2072302785&single=true&output=csv";
     const CSV_MSG = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRHCFDsNJR_W-MMEOkt0o6Vb0YIdC_1iqpZmuxTIx5SHn2wmKG8HJx2dUcpzrY4zurIfrRisa19uMqS/pub?gid=108303659&single=true&output=csv";
-    const GPX_URL = "course.gpx"; 
+    const GPX_URL = "course.gpx";
 
-    let COURSE_DATA = { goal_km: 8.7, aids: [] }; // 往復8.7kmに設定
+    let RAW_AIDS_DATA = "";
+    let COURSE_DATA = { goal_km: 8.7, aids: [] };
     let MESSAGE_DATA = [];
     let GPX_POINTS = [];
     let currentKm = 0;
+    let currentMode = '100';
     let currentTargetLat = 0, currentTargetLon = 0;
 
     window.onload = async () => {
         try {
             const [resAids, resMsg] = await Promise.all([ fetch(CSV_AIDS), fetch(CSV_MSG) ]);
-            parseAidsCSV(await resAids.text());
+            RAW_AIDS_DATA = await resAids.text();
+            parseAidsCSV(RAW_AIDS_DATA);
             parseMessageCSV(await resMsg.text());
             await loadGPX(GPX_URL);
-            document.getElementById('status').innerText = "Status: 準備完了";
             updateUI(0);
-        } catch (e) {
-            document.getElementById('status').innerText = "Status: データ読込エラー";
-        }
+            document.getElementById('status').innerText = "Status: 準備完了";
+        } catch (e) { document.getElementById('status').innerText = "Status: Load Error"; }
     };
 
-    async function loadGPX(url) {
-        try {
-            const res = await fetch(url);
-            if (!res.ok) throw new Error();
-            const text = await res.text();
-            const xml = new DOMParser().parseFromString(text, "text/xml");
-            const trkpts = xml.getElementsByTagName("trkpt");
-            let total = 0;
-            for (let i = 0; i < trkpts.length; i++) {
-                const lat = parseFloat(trkpts[i].getAttribute("lat"));
-                const lon = parseFloat(trkpts[i].getAttribute("lon"));
-                const ele = trkpts[i].getElementsByTagName("ele")[0]?.textContent || 0;
-                if (i > 0) total += calcDist(GPX_POINTS[i-1].lat, GPX_POINTS[i-1].lon, lat, lon);
-                GPX_POINTS.push({ lat, lon, dist: total, ele: parseFloat(ele) });
-            }
-        } catch (e) { console.log("GPX無しで動作します"); }
+    function switchMode(mode) {
+        currentMode = mode;
+        document.getElementById('btn-100').classList.toggle('active', mode === '100');
+        document.getElementById('btn-71').classList.toggle('active', mode === '71');
+        parseAidsCSV(RAW_AIDS_DATA);
+        updateUI(currentKm);
     }
 
     function parseAidsCSV(text) {
@@ -146,13 +155,13 @@
         for (let i = 1; i < lines.length; i++) {
             const row = lines[i].split(',');
             if (row.length < 7) continue;
+            const dist = (currentMode === '100') ? parseFloat(row[2]) : parseFloat(row[3]);
+            if (isNaN(dist) || dist < 0) continue;
             COURSE_DATA.aids.push({
                 name: row[1].replace(/"/g, ''),
-                km: parseFloat(row[2]),
+                km: dist,
                 menu: row[4].replace(/"/g, ''),
-                lat: parseFloat(row[5]),
-                lon: parseFloat(row[6]),
-                ele: parseFloat(row[7]) || 0
+                lat: parseFloat(row[5]), lon: parseFloat(row[6]), ele: parseFloat(row[7]) || 0
             });
         }
         if (COURSE_DATA.aids.length > 0) COURSE_DATA.goal_km = COURSE_DATA.aids[COURSE_DATA.aids.length - 1].km;
@@ -167,6 +176,24 @@
             MESSAGE_DATA.push({ km: parseFloat(row[0]), text: row[1].replace(/"/g, '') });
         }
         MESSAGE_DATA.sort((a, b) => a.km - b.km);
+    }
+
+    async function loadGPX(url) {
+        try {
+            const res = await fetch(url);
+            if (!res.ok) throw new Error();
+            const text = await res.text();
+            const xml = new DOMParser().parseFromString(text, "text/xml");
+            const trkpts = xml.getElementsByTagName("trkpt");
+            let total = 0; GPX_POINTS = [];
+            for (let i = 0; i < trkpts.length; i++) {
+                const lat = parseFloat(trkpts[i].getAttribute("lat"));
+                const lon = parseFloat(trkpts[i].getAttribute("lon"));
+                const ele = trkpts[i].getElementsByTagName("ele")[0]?.textContent || 0;
+                if (i > 0) total += calcDist(GPX_POINTS[i-1].lat, GPX_POINTS[i-1].lon, lat, lon);
+                GPX_POINTS.push({ lat, lon, dist: total, ele: parseFloat(ele) });
+            }
+        } catch (e) { console.log("GPX無しで動作"); }
     }
 
     function startTracking() {
@@ -188,7 +215,7 @@
         if (!points || points.length === 0) return 0;
         let minD = Infinity, nearest = 0;
         points.forEach(p => {
-            const d = calcDist(lat, lon, p.lat, p.lon || p.lng);
+            const d = calcDist(lat, lon, p.lat, p.lon);
             if (d < minD) { minD = d; nearest = p.dist || p.km || 0; }
         });
         return nearest;
@@ -206,12 +233,8 @@
         const safeKm = Number(km) || 0;
         const remain = Math.max(0, COURSE_DATA.goal_km - safeKm);
 
-        // エラー回避: 要素が存在する場合のみ書き換え
-        const currentEl = document.getElementById('dist-current');
-        if (currentEl) currentEl.innerHTML = `${safeKm.toFixed(1)}<span>km</span>`;
-        
-        const goalEl = document.getElementById('dist-goal');
-        if (goalEl) goalEl.innerHTML = `${remain.toFixed(1)}<span>km</span>`;
+        document.getElementById('dist-current').innerHTML = `${safeKm.toFixed(1)}<span>km</span>`;
+        document.getElementById('dist-goal').innerHTML = `${remain.toFixed(1)}<span>km</span>`;
 
         const next = COURSE_DATA.aids.find(a => a.km > safeKm + 0.05);
         if (next) {
@@ -219,22 +242,36 @@
             document.getElementById('dist-aid').innerText = `${(next.km - safeKm).toFixed(1)} km`;
             document.getElementById('aid-menu').innerText = "提供: " + next.menu;
             currentTargetLat = next.lat; currentTargetLon = next.lon;
+        } else {
+            document.getElementById('next-aid-name').innerText = "Finish!";
+            document.getElementById('dist-aid').innerText = "0.0 km";
         }
 
         const p = GPX_POINTS.find(pt => pt.dist >= safeKm);
         document.getElementById('slope-info').innerText = p ? `${p.ele.toFixed(0)} m` : (gpsEle ? `${gpsEle.toFixed(0)} m` : "--- m");
 
         const msg = [...MESSAGE_DATA].reverse().find(m => safeKm >= m.km);
-        document.getElementById('cheer-msg').innerText = msg ? msg.text : "金華山でシミュレーション！";
+        document.getElementById('cheer-msg').innerText = msg ? msg.text : "飛騨高山、楽しんで！";
     }
 
     function openMap() {
-        if (currentTargetLat === 0) return alert("エイド地点が不明です");
+        if (currentTargetLat === 0) return;
         window.open(`https://www.google.com/maps/search/?api=1&query=${currentTargetLat},${currentTargetLon}`, '_blank');
     }
 
-    function simulateMove(s) { currentKm += s; updateUI(currentKm); }
-    function resetTest() { currentKm = 0; updateUI(0); }
+    // --- シミュレーター用関数 ---
+    function simulateMove(s) {
+        currentKm += s;
+        // ゴール距離を超えないように制御
+        if (currentKm > COURSE_DATA.goal_km) currentKm = COURSE_DATA.goal_km;
+        updateUI(currentKm);
+    }
+
+    function resetTest() {
+        currentKm = 0;
+        updateUI(0);
+        document.getElementById('status').innerText = "Status: Reset";
+    }
 </script>
 </body>
 </html>
