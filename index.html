@@ -132,6 +132,8 @@
 <div style="margin-top:20px; border:1px dashed #666; padding:10px;">
     <p>テスト機能</p>
     <button onclick="simulateMove(10)">+10km進む</button>
+    <button onclick="simulateMove(1)">+1km進む</button>
+    <button onclick="simulateMove(-1)">-1km戻る</button>
     <button onclick="simulateMove(-10)">-10km戻る</button>
 </div>
 
@@ -202,7 +204,7 @@ function simulateMove(step) {
     updateDisplayForTest(testKm);
 }
 
-function updatePositionForTest(currentKm) {
+function updateDisplayForTest(currentKm) {
 
 
     // 2. 画面表示の更新
