@@ -196,19 +196,66 @@
         } catch (e) { console.log("GPX無しで動作"); }
     }
 
+    // function startTracking() {
+    //     if (!navigator.geolocation) return alert("GPS非対応");
+    //     document.getElementById('status').innerText = "Status: Tracking...";
+    //     navigator.geolocation.watchPosition(
+    //         (pos) => {
+    //             const rawKm = findNearestKm(pos.coords.latitude, pos.coords.longitude);
+    //             currentKm = isNaN(rawKm) ? 0 : rawKm;
+    //             updateUI(currentKm, pos.coords.altitude);
+    //         },
+    //         (err) => { document.getElementById('status').innerText = "Status: GPS Error"; },
+    //         { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+    //     );
+    // }
+
+    // --- 修正後の計測ロジック ---
     function startTracking() {
-        if (!navigator.geolocation) return alert("GPS非対応");
-        document.getElementById('status').innerText = "Status: Tracking...";
-        navigator.geolocation.watchPosition(
+        // ボタンのテキストを「計測中...」に変更してフィードバックを出す
+        const statusBtn = document.querySelector('.main-btn');
+        const originalText = statusBtn.innerText;
+        statusBtn.innerText = "📍 位置取得中...";
+        statusBtn.disabled = true;
+
+        document.getElementById('status').innerText = "Status: Fetching GPS...";
+
+        // 1回だけ位置情報を取得する
+        navigator.geolocation.getCurrentPosition(
             (pos) => {
-                const rawKm = findNearestKm(pos.coords.latitude, pos.coords.longitude);
+                const lat = pos.coords.latitude;
+                const lon = pos.coords.longitude;
+                const alt = pos.coords.altitude;
+
+                // GPXまたはエイドから最も近いkmを算出
+                const rawKm = findNearestKm(lat, lon);
                 currentKm = isNaN(rawKm) ? 0 : rawKm;
-                updateUI(currentKm, pos.coords.altitude);
+
+                // UIを更新
+                updateUI(currentKm, alt);
+
+                // 完了後の処理
+                statusBtn.innerText = originalText;
+                statusBtn.disabled = false;
+                document.getElementById('status').innerText = `Status: Updated (${new Date().toLocaleTimeString()})`;
             },
-            (err) => { document.getElementById('status').innerText = "Status: GPS Error"; },
-            { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+            (err) => {
+                alert("GPSの取得に失敗しました。設定を確認してください。");
+                statusBtn.innerText = originalText;
+                statusBtn.disabled = false;
+                document.getElementById('status').innerText = "Status: GPS Error";
+            },
+            { 
+                enableHighAccuracy: true, // 精度優先
+                timeout: 10000,           // 10秒でタイムアウト
+                maximumAge: 0             // キャッシュを使わず最新を取得
+            }
         );
     }
+
+
+
+
 
     function findNearestKm(lat, lon) {
         const points = (GPX_POINTS.length > 0) ? GPX_POINTS : COURSE_DATA.aids;
