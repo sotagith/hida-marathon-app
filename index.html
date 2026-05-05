@@ -84,12 +84,17 @@
 <div class="container">
     <h2 style="text-align: center;">Hida Takayama Ultra</h2>
 
-    <!-- ゴールまでの距離 -->
+    <!-- 現在の距離表示を追加 -->
+    <div class="card">
+        <div class="label">現在の地点</div>
+        <div class="distance-main" id="dist-current" style="color: #64b5f6;">--.- <span style="font-size: 1.5rem;">km</span></div>
+    </div>
+
+    <!-- 既存の「Finishまで」のカード -->
     <div class="card">
         <div class="label">Finishまで</div>
         <div class="distance-main" id="dist-goal">--.- <span style="font-size: 1.5rem;">km</span></div>
     </div>
-
     <!-- 次のエイド情報 -->
     <div class="card">
         <div class="aid-info">
@@ -121,6 +126,13 @@
 
     <button onclick="startTracking()">計測開始 / 更新</button>
     <div class="status" id="status">Status: Waiting</div>
+</div>
+
+<!-- テスト用：一時的に追加 -->
+<div style="margin-top:20px; border:1px dashed #666; padding:10px;">
+    <p>テスト機能</p>
+    <button onclick="simulateMove(10)">+10km進む</button>
+    <button onclick="simulateMove(-10)">-10km戻る</button>
 </div>
 
 <script>
@@ -183,22 +195,54 @@
         });
     }
 
+let testKm = 0;
+function simulateMove(step) {
+    testKm += step;
+    // updatePositionと同じ処理を、固定のtestKmで実行するように関数を呼ぶ
+    updateDisplayForTest(testKm);
+}
+
+function updatePositionForTest(currentKm) {
+
+
+    // 2. 画面表示の更新
+    // 現在の距離
+    document.getElementById('dist-current').innerHTML = `${currentKm.toFixed(1)} <span style="font-size: 1.5rem;">km</span>`;
+    
+    // ゴールまでの残り
+    let remainGoal = COURSE_DATA.goal_km - currentKm;
+    document.getElementById('dist-goal').innerHTML = `${remainGoal.toFixed(1)} <span style="font-size: 1.5rem;">km</span>`;
+
+    // 3. 次のエイドを探す
+    let nextAid = COURSE_DATA.aids.find(aid => aid.km > currentKm);
+    if (nextAid) {
+        document.getElementById('next-aid-name').innerText = nextAid.name;
+        document.getElementById('dist-aid').innerText = `${(nextAid.km - currentKm).toFixed(1)} km`;
+        document.getElementById('aid-menu').innerText = nextAid.menu;
+    }
+
+    updateMessage(currentKm);
+}
+
+
     function updatePosition(position) {
         const lat = position.coords.latitude;
         const lng = position.coords.longitude;
 
-        // 【本来はここで現在地がコースの何km地点かを計算】
-        // 今回はデモ用として「現在地＝大会開始からの経過」をシミュレートするロジックの枠組み
-        // 実際には現在座標からコース上の最近似点を割り出します
-        
-        // 仮の現在走行距離 (テスト用: 実際は座標から算出)
-        let currentKm = estimateCurrentKm(lat, lng); 
+        // 1. 現在の走行距離を計算
+        // 本来は全コースの座標データが必要ですが、簡易版として「最も近いエイド」から推計
+       // let currentKm = calculateCurrentKm(lat, lng); 
+        let currentKm = estimateCurrentKm(lat, lng);
 
-        // 1. ゴールまでの距離
+        // 2. 画面表示の更新
+        // 現在の距離
+        document.getElementById('dist-current').innerHTML = `${currentKm.toFixed(1)} <span style="font-size: 1.5rem;">km</span>`;
+        
+        // ゴールまでの残り
         let remainGoal = COURSE_DATA.goal_km - currentKm;
         document.getElementById('dist-goal').innerHTML = `${remainGoal.toFixed(1)} <span style="font-size: 1.5rem;">km</span>`;
 
-        // 2. 次のエイドを探す
+        // 3. 次のエイドを探す
         let nextAid = COURSE_DATA.aids.find(aid => aid.km > currentKm);
         if (nextAid) {
             document.getElementById('next-aid-name').innerText = nextAid.name;
@@ -206,8 +250,26 @@
             document.getElementById('aid-menu').innerText = nextAid.menu;
         }
 
-        // 3. メッセージ更新
         updateMessage(currentKm);
+    }
+
+    // 緯度経度からコース上の距離(km)を推計する関数
+    function calculateCurrentKm(lat, lng) {
+        if (!COURSE_DATA || COURSE_DATA.aids.length === 0) return 0;
+
+        // 最も近いエイドを探す（簡易ロジック）
+        let minDest = Infinity;
+        let closestAidKm = 0;
+
+        COURSE_DATA.aids.forEach(aid => {
+            const d = Math.sqrt(Math.pow(lat - aid.lat, 2) + Math.pow(lng - aid.lng, 2));
+            if (d < minDest) {
+                minDest = d;
+                closestAidKm = aid.km;
+            }
+        });
+
+        return closestAidKm;
     }
 
     function estimateCurrentKm(lat, lng) {
