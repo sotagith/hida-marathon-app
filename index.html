@@ -177,8 +177,8 @@
 <script>
 
     // --- 設定：公開したスプレッドシートのCSV URLをここに貼り付けてください ---
-    const SPREADSHEET_AIDS_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRHCFDsNJR_W-MMEOkt0o6Vb0YIdC_1iqpZmuxTIx5SHn2wmKG8HJx2dUcpzrY4zurIfrRisa19uMqS/pubhtml?gid=2072302785&single=true";
-    const SPREADSHEET_MSG_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRHCFDsNJR_W-MMEOkt0o6Vb0YIdC_1iqpZmuxTIx5SHn2wmKG8HJx2dUcpzrY4zurIfrRisa19uMqS/pubhtml?gid=108303659&single=true";
+    const SPREADSHEET_AIDS_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRHCFDsNJR_W-MMEOkt0o6Vb0YIdC_1iqpZmuxTIx5SHn2wmKG8HJx2dUcpzrY4zurIfrRisa19uMqS/pub?gid=2072302785&single=true&output=csv";
+    const SPREADSHEET_MSG_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRHCFDsNJR_W-MMEOkt0o6Vb0YIdC_1iqpZmuxTIx5SHn2wmKG8HJx2dUcpzrY4zurIfrRisa19uMqS/pub?gid=108303659&single=true&output=csv";
 
     let COURSE_DATA = { goal_km: 100, aids: [] };
     let MESSAGE_DATA = []; // メッセージ用の配列
@@ -271,7 +271,6 @@ function simulateMove(step) {
 
 function updateDisplayForTest(currentKm) {
 
-
     // 2. 画面表示の更新
     // 現在の距離
     document.getElementById('dist-current').innerHTML = `${currentKm.toFixed(1)} <span style="font-size: 1.5rem;">km</span>`;
@@ -298,8 +297,8 @@ function updateDisplayForTest(currentKm) {
 
         // 1. 現在の走行距離を計算
         // 本来は全コースの座標データが必要ですが、簡易版として「最も近いエイド」から推計
-       // let currentKm = calculateCurrentKm(lat, lng); 
-        let currentKm = estimateCurrentKm(lat, lng);
+        let currentKm = calculateCurrentKm(lat, lng); 
+        //let currentKm = estimateCurrentKm(lat, lng);
 
         // 2. 画面表示の更新
         // 現在の距離
