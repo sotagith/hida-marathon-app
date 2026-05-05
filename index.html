@@ -115,7 +115,7 @@
 <body>
 
 <div class="container">
-    <h3 style="text-align: center;">Hida Takayama Ultra</h3>
+    <h4 style="text-align: center;">Hida Takayama Ultra</h4>
 
     <!-- 横並びにするグループ -->
     <div class="horizontal-group">
@@ -177,16 +177,24 @@
 <script>
 
     // --- 設定：公開したスプレッドシートのCSV URLをここに貼り付けてください ---
-    const SPREADSHEET_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRHCFDsNJR_W-MMEOkt0o6Vb0YIdC_1iqpZmuxTIx5SHn2wmKG8HJx2dUcpzrY4zurIfrRisa19uMqS/pub?output=csv";
+    const SPREADSHEET_AIDS_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRHCFDsNJR_W-MMEOkt0o6Vb0YIdC_1iqpZmuxTIx5SHn2wmKG8HJx2dUcpzrY4zurIfrRisa19uMqS/pubhtml?gid=2072302785&single=true";
+    const SPREADSHEET_MSG_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRHCFDsNJR_W-MMEOkt0o6Vb0YIdC_1iqpZmuxTIx5SHn2wmKG8HJx2dUcpzrY4zurIfrRisa19uMqS/pubhtml?gid=108303659&single=true";
 
     let COURSE_DATA = { goal_km: 100, aids: [] };
+    let MESSAGE_DATA = []; // メッセージ用の配列
 
     // ページ読み込み時にCSVを取得して解析する
     window.onload = async () => {
         try {
-            const response = await fetch(SPREADSHEET_CSV_URL);
+            const response = await fetch(SPREADSHEET_AIDS_CSV_URL);
+            const responseMsg = await fetch(SPREADSHEET_MSG_CSV_URL);
+
             const csvText = await response.text();
+            const csvMsgText = await responseMsg.text();
+
             parseCSV(csvText);
+            parseMessageCSV(csvMsgText);
+
             document.getElementById('status').innerText = "Status: コースデータ読み込み完了";
         } catch (error) {
             document.getElementById('status').innerText = "Status: データ取得失敗";
@@ -214,6 +222,23 @@
         }
         // 最後にゴール距離を確定（リストの最後のkm）
         COURSE_DATA.goal_km = COURSE_DATA.aids[COURSE_DATA.aids.length - 1].km;
+    }
+
+    // CSVパース関数の中でメッセージも読み込むように拡張
+    function parseMessageCSV(text) {
+        const lines = text.split('\n');
+        // エイドとメッセージを分けて処理（例：行の内容で判別）
+        lines.forEach((line, index) => {
+            if (index === 0) return; // ヘッダー
+            const row = line.split(',');
+            
+            MESSAGE_DATA.push({
+                km: parseFloat(row[1]),
+                text: row[2].replace(/"/g, '')
+            });
+        });
+        // km地点が小さい順にソートしておく
+        MESSAGE_DATA.sort((a, b) => a.km - b.km);
     }
 
     function startTracking() {
@@ -317,14 +342,18 @@ function updateDisplayForTest(currentKm) {
         return 68.5; 
     }
 
-    function updateMessage(km) {
-        let msg = "";
-        if (km < 20) msg = "序盤です。美女峠に備えて温存しましょう！";
-        else if (km >= 70 && km < 75) msg = "千光寺の激坂！ここを越えれば飛騨牛が待っています！";
-        else if (km >= 90) msg = "あと10km！高山の街へ帰りましょう！";
-        else msg = "一歩一歩。完走はあなたのものです。";
-        document.getElementById('cheer-msg').innerText = msg;
+    // 応援メッセージを更新する関数
+    function updateMessage(currentKm) {
+        // 現在のkm地点以下の、最も大きいkmに設定されたメッセージを探す
+        const relevantMsg = [...MESSAGE_DATA].reverse().find(m => currentKm >= m.km);
+        
+        if (relevantMsg) {
+            document.getElementById('cheer-msg').innerText = relevantMsg.text;
+        } else {
+            document.getElementById('cheer-msg').innerText = "一歩一歩、ゴールを目指しましょう！";
+        }
     }
+
 
     function handleError(error) {
         document.getElementById('status').innerText = "Status: GPSエラー";
