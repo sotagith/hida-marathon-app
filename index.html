@@ -49,7 +49,7 @@
         .status { font-size: 0.7rem; color: #666; margin-top: 10px; text-align: center; }
 
         /* シミュレーター用のスタイル */
-        .test-panel { margin-top: 20px; border: 1px dashed #444; padding: 15px; border-radius: 10px; width: 100%; box-sizing: border-box; }
+        .test-panel { margin-top: 5px; border: 1px dashed #444; padding: 10px; border-radius: 10px; width: 100%; box-sizing: border-box; }
         .test-btn-group { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; }
         .test-btn-group button { 
             flex: 1; min-width: 70px; padding: 8px; font-size: 0.8rem; background: #333; color: #ccc; border: 1px solid #555; border-radius: 5px;
@@ -66,6 +66,7 @@
         <button id="btn-71" class="mode-btn" onclick="switchMode('71')">71km</button>
     </div>
 
+
     <div class="horizontal-group">
         <div class="card half-card">
             <div class="label">現在の地点</div>
@@ -77,6 +78,15 @@
         </div>
     </div>
 
+    <!-- 再追加：テスト用シミュレーターパネル -->
+    <div class="test-panel">
+        <div class="test-btn-group">
+            <button onclick="simulateMove(1)">+1km</button>
+            <button onclick="simulateMove(5)">+5km</button>
+            <button onclick="simulateMove(10)">+10km</button>
+            <button onclick="resetTest()" style="background: #5c2b2b;">Reset</button>
+        </div>
+    </div>
     <div class="card">
         <div class="aid-info">
             <span id="next-aid-name">データ読込中...</span>
@@ -86,7 +96,7 @@
         <button class="btn-map" onclick="openMap()">🚩 エイドをMapで確認</button>
     </div>
 
-    <div class="card">
+    <div class="card" style="display: none;">
         <div style="display: flex; justify-content: space-around;">
             <div>
                 <div class="label">目標ペース</div>
@@ -104,21 +114,13 @@
     <button class="main-btn" onclick="startTracking()">計測開始 / 更新</button>
     <div class="status" id="status">Status: Waiting...</div>
 
-    <!-- 再追加：テスト用シミュレーターパネル -->
-    <div class="test-panel">
-        <div class="label" style="margin-bottom: 10px;">Simulator (Debug Only)</div>
-        <div class="test-btn-group">
-            <button onclick="simulateMove(1)">+1km</button>
-            <button onclick="simulateMove(5)">+5km</button>
-            <button onclick="simulateMove(10)">+10km</button>
-            <button onclick="resetTest()" style="background: #5c2b2b;">Reset</button>
-        </div>
-    </div>
+
 </div>
 
 <script>
-    const CSV_AIDS = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRHCFDsNJR_W-MMEOkt0o6Vb0YIdC_1iqpZmuxTIx5SHn2wmKG8HJx2dUcpzrY4zurIfrRisa19uMqS/pub?gid=2072302785&single=true&output=csv";
-    const CSV_MSG = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRHCFDsNJR_W-MMEOkt0o6Vb0YIdC_1iqpZmuxTIx5SHn2wmKG8HJx2dUcpzrY4zurIfrRisa19uMqS/pub?gid=108303659&single=true&output=csv";
+
+    const CSV_AIDS = "https://raw.githubusercontent.com/sotagith/hida-marathon-app/refs/heads/main/2026HidaTakayamaAids.csv";
+    const CSV_MSG = "https://raw.githubusercontent.com/sotagith/hida-marathon-app/refs/heads/main/2026HidaTakayamaMessage.csv";
     const GPX_URL = "course.gpx";
 
     let RAW_AIDS_DATA = "";
@@ -195,20 +197,6 @@
             }
         } catch (e) { console.log("GPX無しで動作"); }
     }
-
-    // function startTracking() {
-    //     if (!navigator.geolocation) return alert("GPS非対応");
-    //     document.getElementById('status').innerText = "Status: Tracking...";
-    //     navigator.geolocation.watchPosition(
-    //         (pos) => {
-    //             const rawKm = findNearestKm(pos.coords.latitude, pos.coords.longitude);
-    //             currentKm = isNaN(rawKm) ? 0 : rawKm;
-    //             updateUI(currentKm, pos.coords.altitude);
-    //         },
-    //         (err) => { document.getElementById('status').innerText = "Status: GPS Error"; },
-    //         { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
-    //     );
-    // }
 
     // --- 修正後の計測ロジック ---
     function startTracking() {
@@ -296,7 +284,7 @@
         // 1. GPXがあればそれを使う
         // 2. なければGPS生の標高を使う
         // 3. それもなければ "--- m"
-        document.getElementById('slope-info').innerText = p ? `${p.ele.toFixed(0)} m` : (gpsEle ? `${gpsEle.toFixed(0)} m` : "--- m");
+        //document.getElementById('slope-info').innerText = p ? `${p.ele.toFixed(0)} m` : (gpsEle ? `${gpsEle.toFixed(0)} m` : "--- m");
 
         const msg = [...MESSAGE_DATA].reverse().find(m => safeKm >= m.km);
         document.getElementById('cheer-msg').innerText = msg ? msg.text : "飛騨高山、楽しんで！";
@@ -320,6 +308,8 @@
         updateUI(0);
         document.getElementById('status').innerText = "Status: Reset";
     }
+
+
 </script>
 </body>
 </html>
