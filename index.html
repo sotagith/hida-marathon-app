@@ -122,7 +122,7 @@
     const GPX_URL = "course.gpx";
 
     let RAW_AIDS_DATA = "";
-    let COURSE_DATA = { goal_km: 8.7, aids: [] };
+    let COURSE_DATA = { goal_km: 100, aids: [] };
     let MESSAGE_DATA = [];
     let GPX_POINTS = [];
     let currentKm = 0;
@@ -253,10 +253,6 @@
         );
     }
 
-
-
-
-
     function findNearestKm(lat, lon) {
         const points = (GPX_POINTS.length > 0) ? GPX_POINTS : COURSE_DATA.aids;
         if (!points || points.length === 0) return 0;
@@ -287,7 +283,7 @@
         if (next) {
             document.getElementById('next-aid-name').innerText = next.name;
             document.getElementById('dist-aid').innerText = `${(next.km - safeKm).toFixed(1)} km`;
-            document.getElementById('aid-menu').innerText = "提供: " + next.menu;
+            document.getElementById('aid-menu').innerText = next.menu;
             currentTargetLat = next.lat; currentTargetLon = next.lon;
         } else {
             document.getElementById('next-aid-name').innerText = "Finish!";

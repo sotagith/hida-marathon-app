@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<gpx version="1.1" creator="Gemini-SE-Assistant" xmlns="http://www.topografix.com/GPX/1/1">
+  <trk>
+    <name>Kinkazan Driveway Training Course</name>
+    <trkseg>
+      <trkpt lat="35.4137" lon="136.7826"><ele>31</ele></trkpt> <!-- 岩戸公園スタート -->
+      <trkpt lat="35.4172" lon="136.7852"><ele>115</ele></trkpt> <!-- 上り坂 -->
+      <trkpt lat="35.4215" lon="136.7865"><ele>243</ele></trkpt> <!-- ドライブウェイ展望台 -->
+      <trkpt lat="35.4278" lon="136.7862"><ele>285</ele></trkpt> <!-- 尾根沿い -->
+      <trkpt lat="35.4338" lon="136.7818"><ele>302</ele></trkpt> <!-- 岐阜城分岐付近（最高地点） -->
+      <trkpt lat="35.4371" lon="136.7761"><ele>185</ele></trkpt> <!-- 下り開始 -->
+      <trkpt lat="35.4385" lon="136.7750"><ele>154</ele></trkpt> <!-- 折り返し（長良川展望地点） -->
+      <trkpt lat="35.4338" lon="136.7818"><ele>302</ele></trkpt> <!-- 復路：上り返し -->
+      <trkpt lat="35.4215" lon="136.7865"><ele>243</ele></trkpt> <!-- 復路：展望台 -->
+      <trkpt lat="35.4137" lon="136.7826"><ele>31</ele></trkpt> <!-- 岩戸公園ゴール -->
+    </trkseg>
+  </trk>
+</gpx>
